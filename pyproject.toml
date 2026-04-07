@@ -15,14 +15,31 @@ dependencies = [
     "numpy>=1.24.0",
     "openai>=1.0.0",
     "requests>=2.28.0",
+    "torch>=2.11.0",
 ]
+
+[tool.uv.sources]
+torch = [
+  { index = "pytorch-cpu", marker = "sys_platform == 'linux'" },
+  { index = "pytorch-cu128", marker = "sys_platform != 'linux'" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
 
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0.0",
 ]
 train = [
-    "torch>=2.0.0",
+    "torch>=2.1.0",
 ]
 
 [project.scripts]

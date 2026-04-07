@@ -8,6 +8,7 @@ from openenv.core.env_server.http_server import create_app
 from models import FoodDeliveryAction, FoodDeliveryObservation
 from server.food_delivery_environment import FoodDeliveryDispatchEnvironment, SCENARIOS
 from server.grader import run_policy_evaluation
+from server.web_ui import mount
 from training.inference import list_registered_policies
 
 
@@ -142,7 +143,14 @@ async def grader(request: GraderRequest) -> dict:
 async def baseline(request: BaselineRequest) -> dict:
     rows = []
     for task in SCENARIOS:
-        for policy in ["nearest", "deadline", "hybrid"]:
+        for policy in [
+            "nearest",
+            "deadline",
+            "hybrid",
+            "ddqn_per_v1",
+            "auto_best",
+            "llm",
+        ]:
             m = run_policy_evaluation(
                 task_id=task, policy_id=policy, episodes=request.episodes
             )
@@ -184,6 +192,7 @@ async def evaluate(request: EvaluateRequest) -> dict:
 
 
 app.include_router(router)
+mount(app)
 
 
 def main(host: str = "0.0.0.0", port: int = 8000):
