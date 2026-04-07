@@ -1,3 +1,16 @@
+---
+title: Food Delivery Environment Server
+emoji: "\ud83d\udef5"
+colorFrom: blue
+colorTo: green
+sdk: docker
+pinned: false
+app_port: 8000
+base_path: /docs
+tags:
+  - openenv
+---
+
 # Food Delivery Dispatch Environment
 
 A realistic food-delivery dispatch simulation for training and evaluating AI agents. Models stochastic order arrivals, preparation delays, traffic multipliers, courier queuing, and KPI-based grading — the same operational challenges faced by Swiggy, Zomato, and Uber Eats.

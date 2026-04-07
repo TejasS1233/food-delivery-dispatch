@@ -19,3 +19,6 @@ build/
 
 # Local temp files
 *.log
+
+# Temporary cloned Space repo
+food_delivery/
