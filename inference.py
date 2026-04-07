@@ -27,7 +27,7 @@ from openai import OpenAI
 
 
 LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME", "")
-API_KEY = os.getenv("HF_TOKEN") or os.getenv("GROQ_API_KEY") or os.getenv("API_KEY")
+API_KEY = os.getenv("HF_TOKEN")
 API_BASE_URL = os.getenv("API_BASE_URL", "https://api.groq.com/openai/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "llama-3.1-8b-instant")
 
@@ -62,10 +62,10 @@ def log_step(
     )
 
 
-def log_end(success: bool, steps: int, score: float, rewards: list[float]) -> None:
+def log_end(success: bool, steps: int, rewards: list[float]) -> None:
     reward_csv = ",".join(f"{r:.2f}" for r in rewards)
     print(
-        f"[END] success={str(success).lower()} steps={steps} score={score:.3f} rewards={reward_csv}",
+        f"[END] success={str(success).lower()} steps={steps} rewards={reward_csv}",
         flush=True,
     )
 
@@ -231,7 +231,10 @@ def compute_score(obs: dict[str, Any]) -> float:
 
 
 def main() -> None:
-    client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY) if API_KEY else None
+    if os.getenv("HF_TOKEN") is None:
+        raise ValueError("HF_TOKEN environment variable is required")
+
+    client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
     env = HttpEnvClient(BENCHMARK_URL)
 
     rewards: list[float] = []
@@ -249,10 +252,7 @@ def main() -> None:
             if done:
                 break
 
-            if client:
-                action = choose_action_with_llm(client, step, obs, rewards)
-            else:
-                action = choose_fallback_action(obs)
+            action = choose_action_with_llm(client, step, obs, rewards)
 
             try:
                 step_payload = env.step(action)
@@ -278,9 +278,11 @@ def main() -> None:
 
         score = compute_score(obs)
         success = score >= 0.5
+    except Exception:
+        success = False
     finally:
         env.close()
-        log_end(success=success, steps=steps_taken, score=score, rewards=rewards)
+        log_end(success=success, steps=steps_taken, rewards=rewards)
 
 
 if __name__ == "__main__":
