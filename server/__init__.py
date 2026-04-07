@@ -1,1 +1,1 @@
-"""Server package for Food Delivery OpenEnv v2."""
+"""Server package for Food Delivery Dispatch environment."""

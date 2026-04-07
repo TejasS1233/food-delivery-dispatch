@@ -1,1 +1,1 @@
-"""Training helpers for food delivery env v2."""
+"""Training helpers for food delivery dispatch environment."""

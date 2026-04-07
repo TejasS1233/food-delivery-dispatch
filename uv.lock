@@ -1744,15 +1744,17 @@ core = [
 ]
 
 [[package]]
-name = "openenv-food-delivery-env-v2"
+name = "openenv-food-delivery-dispatch"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "fastapi" },
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "numpy", version = "2.4.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "openai" },
     { name = "openenv-core", extra = ["core"] },
     { name = "pydantic" },
+    { name = "requests" },
     { name = "uvicorn" },
 ]
 
@@ -1768,9 +1770,11 @@ train = [
 requires-dist = [
     { name = "fastapi", specifier = ">=0.115.0" },
     { name = "numpy", specifier = ">=1.24.0" },
+    { name = "openai", specifier = ">=1.0.0" },
     { name = "openenv-core", extras = ["core"], specifier = ">=0.2.1" },
     { name = "pydantic", specifier = ">=2.7.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0.0" },
+    { name = "requests", specifier = ">=2.28.0" },
     { name = "torch", marker = "extra == 'train'", specifier = ">=2.0.0" },
     { name = "uvicorn", specifier = ">=0.24.0" },
 ]

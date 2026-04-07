@@ -3,7 +3,7 @@ requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "openenv-food-delivery-env-v2"
+name = "openenv-food-delivery-dispatch"
 version = "0.1.0"
 description = "Food delivery dispatch environment for OpenEnv"
 requires-python = ">=3.10"
@@ -13,6 +13,8 @@ dependencies = [
     "uvicorn>=0.24.0",
     "pydantic>=2.7.0",
     "numpy>=1.24.0",
+    "openai>=1.0.0",
+    "requests>=2.28.0",
 ]
 
 [project.optional-dependencies]
@@ -28,5 +30,5 @@ server = "server.app:main"
 
 [tool.setuptools]
 include-package-data = true
-packages = ["food_delivery_env_v2", "food_delivery_env_v2.server"]
-package-dir = { "food_delivery_env_v2" = ".", "food_delivery_env_v2.server" = "server" }
+packages = ["food_delivery_env_v2", "food_delivery_env_v2.server", "food_delivery_env_v2.training"]
+package-dir = { "food_delivery_env_v2" = ".", "food_delivery_env_v2.server" = "server", "food_delivery_env_v2.training" = "training" }
