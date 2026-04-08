@@ -68,6 +68,8 @@ POLICIES = [
 
 class GraderRequest(BaseModel):
     task_id: str = Field(default="medium")
+    task: str | None = Field(default=None)
+    id: str | None = Field(default=None)
     policy_id: str = Field(default="hybrid")
     episodes: int = Field(default=3, ge=1, le=20)
 
@@ -89,8 +91,29 @@ async def health() -> dict:
 
 @app.get("/tasks")
 async def get_tasks() -> dict:
+    tasks_with_graders = [
+        {
+            **task,
+            "id": task["task_id"],
+            "grader": {
+                "endpoint": "/grader",
+                "method": "POST",
+                "body": {"task_id": task["task_id"]},
+            },
+        }
+        for task in TASKS
+    ]
     return {
-        "tasks": TASKS,
+        "tasks": tasks_with_graders,
+        "task_ids": [task["task_id"] for task in TASKS],
+        "graders": [
+            {
+                "task_id": task["task_id"],
+                "endpoint": "/grader",
+                "method": "POST",
+            }
+            for task in TASKS
+        ],
         "action_schema": {
             "action_type": ["assign", "reject", "reposition", "wait"],
             "assign": {"required": ["order_id", "courier_id"]},
@@ -118,8 +141,14 @@ async def get_policies() -> dict:
 
 @app.post("/grader")
 async def grader(request: GraderRequest) -> dict:
+    resolved_task_id = request.task_id
+    if request.task:
+        resolved_task_id = request.task
+    if request.id:
+        resolved_task_id = request.id
+
     metrics = run_policy_evaluation(
-        task_id=request.task_id,
+        task_id=resolved_task_id,
         policy_id=request.policy_id,
         episodes=request.episodes,
     )
