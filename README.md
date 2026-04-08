@@ -141,14 +141,13 @@ uv run python -m server.app
 In another terminal:
 
 ```bash
-uv run python run_baseline.py --url http://localhost:8000 --episodes 3
+uv run python scripts/run_baseline.py --url http://localhost:8000 --episodes 3
 ```
 
-### Training Extras
+### Development Dependencies
 
 ```bash
-uv sync --extra train   # For DDQN/PPO training
-uv sync --extra dev     # For running tests
+uv sync --dev           # Installs pytest and other dev tooling
 ```
 
 ### Run Tests
@@ -214,7 +213,7 @@ uv run python inference.py
 ### DDQN + Prioritized Experience Replay
 
 ```bash
-uv run python train_ddqn_per.py --episodes 300 --policy-id ddqn_per_v1
+uv run python -m training.train_ddqn_per --episodes 300 --policy-id ddqn_per_v1
 ```
 
 Meta-action DDQN with prioritized replay over dispatch heuristics. Uses action masking to ensure only valid actions are selected.
@@ -222,7 +221,7 @@ Meta-action DDQN with prioritized replay over dispatch heuristics. Uses action m
 ### Masked PPO
 
 ```bash
-uv run python train_ppo_masked.py --updates 120 --policy-id ppo_masked_v1
+uv run python -m training.train_ppo_masked --updates 120 --policy-id ppo_masked_v1
 ```
 
 Proximal Policy Optimization with action masking over high-level dispatch templates.
@@ -262,9 +261,8 @@ food_delivery_env_v2/
 ├── models.py                   # Action/Observation models
 ├── decision.py                 # Heuristic policies
 ├── inference.py                # LLM inference script
-├── run_baseline.py             # Baseline evaluation
-├── train_ddqn_per.py           # DDQN+PER training
-├── train_ppo_masked.py         # Masked PPO training
+├── scripts/
+│   └── run_baseline.py         # Baseline evaluation
 ├── validate-submission.sh      # Pre-submission validator
 ├── openenv.yaml                # OpenEnv manifest
 ├── pyproject.toml              # Package config
@@ -278,11 +276,13 @@ food_delivery_env_v2/
 ├── training/
 │   ├── __init__.py
 │   ├── common.py               # Shared utilities
-│   └── inference.py            # Trained policy inference
-├── models/
-│   ├── ddqn_per_v1.pt          # Trained DDQN checkpoint
-│   ├── ppo_masked_v1.pt        # Trained PPO checkpoint
-│   └── registry.json           # Policy registry
+│   ├── inference.py            # Trained policy inference
+│   ├── train_ddqn_per.py       # DDQN+PER training
+│   ├── train_ppo_masked.py     # Masked PPO training
+│   └── models/
+│       ├── ddqn_per_v1.pt      # Trained DDQN checkpoint
+│       ├── ppo_masked_v1.pt    # Trained PPO checkpoint
+│       └── registry.json       # Policy registry
 └── tests/
     ├── conftest.py
     ├── test_api_endpoints.py

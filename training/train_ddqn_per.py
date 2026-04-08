@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import argparse
 from collections import deque
-import math
 import random
 
 import numpy as np
@@ -15,7 +14,7 @@ try:
     import torch.optim as optim
 except Exception as exc:  # pragma: no cover
     raise RuntimeError(
-        "PyTorch is required for train_ddqn_per.py. Install with: uv sync --extra train"
+        "PyTorch is required for training.train_ddqn_per. Install dependencies with: uv sync"
     ) from exc
 
 from decision import action_mask, choose_meta_action, META_ACTIONS

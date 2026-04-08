@@ -22,7 +22,9 @@ def get_all_policies() -> list[str]:
     return policies
 
 
-def run_single_evaluation(task_id: str, policy_id: str, episodes: int) -> tuple:
+def run_single_evaluation(
+    task_id: str, policy_id: str, episodes: int
+) -> tuple[str, float]:
     """Run evaluation and return formatted results."""
     episodes = max(1, min(episodes, 20))
     m = run_policy_evaluation(
@@ -46,7 +48,7 @@ def run_single_evaluation(task_id: str, policy_id: str, episodes: int) -> tuple:
     return summary, m.score
 
 
-def run_full_baseline(episodes: int) -> tuple:
+def run_full_baseline(episodes: int) -> pd.DataFrame:
     """Run baseline across all tasks and policies."""
     episodes = max(1, min(episodes, 20))
     rows = []

@@ -14,7 +14,7 @@ try:
     from torch.distributions import Categorical
 except Exception as exc:  # pragma: no cover
     raise RuntimeError(
-        "PyTorch is required for train_ppo_masked.py. Install with: uv sync --extra train"
+        "PyTorch is required for training.train_ppo_masked. Install dependencies with: uv sync"
     ) from exc
 
 from decision import action_mask, choose_meta_action, META_ACTIONS

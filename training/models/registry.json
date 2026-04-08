@@ -3,7 +3,7 @@
     {
       "policy_id": "ddqn_per_v1",
       "algo": "ddqn_per",
-      "checkpoint_path": "models/ddqn_per_v1.pt",
+      "checkpoint_path": "training/models/ddqn_per_v1.pt",
       "task_mix": ["easy", "medium", "hard"],
       "created_at": "2026-04-07T12:07:59.405645Z",
       "notes": "Meta-action DDQN with prioritized replay over dispatch heuristics/actions"
@@ -11,7 +11,7 @@
     {
       "policy_id": "ppo_masked_v1",
       "algo": "ppo_masked",
-      "checkpoint_path": "models/ppo_masked_v1.pt",
+      "checkpoint_path": "training/models/ppo_masked_v1.pt",
       "task_mix": ["easy", "medium", "hard"],
       "created_at": "2026-04-07T12:13:44.699220Z",
       "notes": "Masked PPO over high-level dispatch action templates"

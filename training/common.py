@@ -8,7 +8,7 @@ import json
 from models import FoodDeliveryObservation
 
 
-MODELS_DIR = Path("models")
+MODELS_DIR = Path("training/models")
 MODELS_DIR.mkdir(exist_ok=True)
 REGISTRY_PATH = MODELS_DIR / "registry.json"
 
