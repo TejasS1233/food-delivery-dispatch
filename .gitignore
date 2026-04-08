@@ -22,3 +22,5 @@ build/
 
 # Temporary cloned Space repo
 food_delivery/
+
+.env

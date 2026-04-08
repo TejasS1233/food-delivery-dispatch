@@ -141,16 +141,11 @@ async def grader(request: GraderRequest) -> dict:
 
 @app.post("/baseline")
 async def baseline(request: BaselineRequest) -> dict:
+    policies = ["nearest", "deadline", "hybrid", "ddqn_per_v1", "auto_best"]
+
     rows = []
     for task in SCENARIOS:
-        for policy in [
-            "nearest",
-            "deadline",
-            "hybrid",
-            "ddqn_per_v1",
-            "auto_best",
-            "llm",
-        ]:
+        for policy in policies:
             m = run_policy_evaluation(
                 task_id=task, policy_id=policy, episodes=request.episodes
             )
@@ -165,7 +160,17 @@ async def baseline(request: BaselineRequest) -> dict:
                     "rejection_rate": m.rejection_rate,
                 }
             )
-    return {"episodes": request.episodes, "results": rows}
+    return {
+        "episodes": request.episodes,
+        "policies": policies,
+        "results": rows,
+    }
+
+
+@app.get("/baseline")
+async def baseline_get(episodes: int = 3) -> dict:
+    request = BaselineRequest(episodes=episodes)
+    return await baseline(request)
 
 
 @app.post("/evaluate")
