@@ -129,7 +129,7 @@ Using `inference.py` with model `llama-3.3-70b-versatile`:
 | Task   | Horizon | Steps | Done | Score |
 | ------ | ------: | ----: | ---- | ----: |
 | easy   |     180 |   180 | true | 0.924 |
-| medium |     240 |   240 | true | 0.781 |
+| medium |     240 |   240 | true | 0.863 |
 | hard   |     300 |   300 | true | 0.712 |
 
 These runs are deterministic for the same task/model/environment settings due to fixed scenario seeds.
