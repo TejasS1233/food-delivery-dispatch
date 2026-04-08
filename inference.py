@@ -37,11 +37,11 @@ BENCHMARK_URL = os.getenv(
     "BENCHMARK_URL",
     "https://tejass1233-openenv-food-delivery-dispatch.hf.space",
 )
-TASK_NAME = os.getenv("TASK_NAME", "medium")
 BENCHMARK = os.getenv("BENCHMARK", "food_delivery_dispatch")
 MAX_STEPS = int(os.getenv("MAX_STEPS", "0"))
 TEMPERATURE = float(os.getenv("TEMPERATURE", "0.1"))
 MAX_TOKENS = int(os.getenv("MAX_TOKENS", "220"))
+TASKS = ["easy", "medium", "hard"]
 
 
 SYSTEM_PROMPT = (
@@ -262,12 +262,7 @@ def compute_score(obs: dict[str, Any]) -> float:
     return max(0.0, min(1.0, score))
 
 
-def main() -> None:
-    if os.getenv("HF_TOKEN") is None:
-        raise ValueError("HF_TOKEN environment variable is required")
-
-    client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
-
+def run_task(client: OpenAI, task_name: str) -> None:
     rewards: list[float] = []
     recent_action_counts: dict[tuple, int] = {}
     prev_sig: tuple | None = None
@@ -276,7 +271,7 @@ def main() -> None:
     score = 0.0
     success = False
 
-    log_start(task=TASK_NAME, env=BENCHMARK, model=MODEL_NAME)
+    log_start(task=task_name, env=BENCHMARK, model=MODEL_NAME)
 
     try:
         if LOCAL_IMAGE_NAME:
@@ -285,7 +280,7 @@ def main() -> None:
             env_client = FoodDeliveryEnv(base_url=BENCHMARK_URL)
 
         with env_client.sync() as env:
-            reset_result = env.reset(task=TASK_NAME)
+            reset_result = env.reset(task=task_name)
             obs, _, done, _ = extract_result_fields(reset_result)
             horizon = int(obs.get("horizon", 0) or 0)
             max_steps = MAX_STEPS if MAX_STEPS > 0 else horizon
@@ -356,6 +351,15 @@ def main() -> None:
         success = False
     finally:
         log_end(success=success, steps=steps_taken, score=score, rewards=rewards)
+
+
+def main() -> None:
+    if os.getenv("HF_TOKEN") is None:
+        raise ValueError("HF_TOKEN environment variable is required")
+
+    client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
+    for task_name in TASKS:
+        run_task(client, task_name)
 
 
 if __name__ == "__main__":

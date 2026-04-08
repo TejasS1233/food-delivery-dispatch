@@ -139,7 +139,7 @@ These runs are deterministic for the same task/model/environment settings due to
 Root `inference.py` is the script used by evaluators.
 - Uses OpenAI-compatible client
 - Emits strict logs: `[START]`, repeated `[STEP]`, `[END]`
-- Supports single-task execution via `TASK_NAME`
+- Runs all tasks from the internal `TASKS = ["easy", "medium", "hard"]` list
 - Uses env horizon by default (`MAX_STEPS=0` means auto-horizon)
 
 Required environment variables:
@@ -149,7 +149,6 @@ Required environment variables:
 
 Optional variables:
 - `BENCHMARK_URL` (default `http://localhost:8000`)
-- `TASK_NAME` (`easy` | `medium` | `hard`, default `medium`)
 - `MAX_STEPS` (`0` for auto-horizon, or positive integer override)
 - `LOCAL_IMAGE_NAME` (optional; when set, `inference.py` uses `from_docker_image()`, e.g. `food-delivery-dispatch:latest`)
 
@@ -166,14 +165,6 @@ export MODEL_NAME="<evaluator_model_name>"
 export HF_TOKEN="<your_key>"
 export BENCHMARK_URL="<env_base_url>"
 export MAX_STEPS="0"
-
-export TASK_NAME="easy"
-uv run --no-sync python inference.py
-
-export TASK_NAME="medium"
-uv run --no-sync python inference.py
-
-export TASK_NAME="hard"
 uv run --no-sync python inference.py
 ```
 
@@ -185,10 +176,7 @@ $env:MODEL_NAME="<evaluator_model_name>"
 $env:HF_TOKEN="<your_key>"
 $env:BENCHMARK_URL="<env_base_url>"
 $env:MAX_STEPS="0"
-
-$env:TASK_NAME="easy";   uv run --no-sync python inference.py
-$env:TASK_NAME="medium"; uv run --no-sync python inference.py
-$env:TASK_NAME="hard";   uv run --no-sync python inference.py
+uv run --no-sync python inference.py
 ```
 
 ## How A Judge / LLM Evaluator Will Run This
@@ -196,8 +184,8 @@ $env:TASK_NAME="hard";   uv run --no-sync python inference.py
 Typical evaluation flow in the hackathon:
 1. Start the environment (local Docker or deployed HF Space).
 2. Verify service endpoints (`/health`, `/reset`, `/step`, `/tasks`, `/grader`).
-3. Set `API_BASE_URL`, `MODEL_NAME`, `HF_TOKEN`, `BENCHMARK_URL`, and `TASK_NAME`.
-4. Run `uv run --no-sync python inference.py` per task.
+3. Set `API_BASE_URL`, `MODEL_NAME`, `HF_TOKEN`, and `BENCHMARK_URL`.
+4. Run `uv run --no-sync python inference.py` once (the script iterates all tasks).
 5. Parse `[END]` for final `success`, `steps`, and `score`.
 6. Confirm full-horizon completion (`done=true` at task horizon).
 
@@ -215,10 +203,7 @@ export API_BASE_URL="<openai_compatible_base_url>"
 export MODEL_NAME="<evaluator_model_name>"
 export HF_TOKEN="<judge_key>"
 export MAX_STEPS="0"
-
-export TASK_NAME="easy" && uv run --no-sync python inference.py
-export TASK_NAME="medium" && uv run --no-sync python inference.py
-export TASK_NAME="hard" && uv run --no-sync python inference.py
+uv run --no-sync python inference.py
 ```
 
 Windows (PowerShell):
@@ -229,10 +214,7 @@ $env:API_BASE_URL="<openai_compatible_base_url>"
 $env:MODEL_NAME="<evaluator_model_name>"
 $env:HF_TOKEN="<judge_key>"
 $env:MAX_STEPS="0"
-
-$env:TASK_NAME="easy";   uv run --no-sync python inference.py
-$env:TASK_NAME="medium"; uv run --no-sync python inference.py
-$env:TASK_NAME="hard";   uv run --no-sync python inference.py
+uv run --no-sync python inference.py
 ```
 
 Validator command used before final submission:
