@@ -1,6 +1,6 @@
 ---
 title: Food Delivery Environment Server
-emoji: "\ud83d\udef5"
+emoji: "🚚"
 colorFrom: blue
 colorTo: green
 sdk: docker
@@ -9,131 +9,23 @@ app_port: 8000
 base_path: /docs
 tags:
   - openenv
+  - logistics
+  - reinforcement-learning
 ---
 
 # Food Delivery Dispatch Environment
 
-A realistic food-delivery dispatch simulation for training and evaluating AI agents. Models stochastic order arrivals, preparation delays, traffic multipliers, courier queuing, and KPI-based grading — the same operational challenges faced by Swiggy, Zomato, and Uber Eats.
+Real-world dispatch simulation for food delivery operations, built for OpenEnv and the Meta PyTorch OpenEnv Hackathon.
 
-## Why This Is Real-World
+## Environment Description and Motivation
 
-Every day, millions of dispatch decisions are made by humans and algorithms. This environment captures the core trade-offs:
-- **On-time delivery** vs **courier utilization**
-- **Order rejection** (capacity management) vs **customer satisfaction**
-- **Proactive repositioning** (anticipating demand) vs **idle movement cost**
+Dispatch systems for food platforms must make high-frequency decisions under uncertainty: which courier gets which order, when to reject infeasible orders, and where to reposition idle couriers before demand spikes. This environment models those operational trade-offs with stochastic arrivals, prep delays, and traffic multipliers.
 
-The reward signal is dense and multi-objective, providing meaningful feedback throughout each episode — not just a binary end-of-episode score.
-
----
-
-## Task Set
-
-| Task | Description | Couriers | Horizon | SLA | Traffic Peaks |
-|---|---|---|---|---|---|
-| **easy** | Stable demand, relaxed SLA | 12 | 180 min | 38 min | Low (1.1x) |
-| **medium** | Peak variability, tighter SLA | 14 | 240 min | 34 min | Moderate (1.25x) |
-| **hard** | Adversarial peak, strict SLA | 14 | 300 min | 30 min | Severe (1.45x) |
-
-Each task uses a fixed random seed for deterministic, reproducible evaluation.
-
----
-
-## Action Space
-
-`FoodDeliveryAction` — one decision per step:
-
-| Field | Type | Description |
-|---|---|---|
-| `action_type` | `"assign" \| "reject" \| "reposition" \| "wait"` | Dispatch action to apply |
-| `order_id` | `str \| None` | Order to assign or reject |
-| `courier_id` | `str \| None` | Courier to assign or reposition |
-| `target_zone` | `int \| None` | Target zone for repositioning |
-
----
-
-## Observation Space
-
-`FoodDeliveryObservation` — full system state each step:
-
-| Field | Type | Description |
-|---|---|---|
-| `task_id` | `str` | Task difficulty identifier |
-| `minute` | `int` | Current minute of episode |
-| `horizon` | `int` | Episode horizon in minutes |
-| `pending_orders` | `list[PendingOrderView]` | Top pending orders with urgency, prep time, SLA remaining |
-| `couriers` | `list[CourierView]` | Courier status: zone, busy time, queue length |
-| `total_orders_created` | `int` | Cumulative orders spawned |
-| `total_delivered` | `int` | Successfully delivered orders |
-| `total_on_time` | `int` | On-time deliveries |
-| `total_late` | `int` | Late deliveries |
-| `total_rejected` | `int` | Rejected orders |
-| `total_cancelled` | `int` | Auto-cancelled (overdue) orders |
-| `average_delivery_minutes` | `float` | Mean delivery duration |
-| `cumulative_reward` | `float` | Running reward total |
-| `reward` | `float` | Step reward |
-| `done` | `bool` | Episode complete |
-
----
-
-## Reward Design
-
-Dense reward every step:
-
-| Event | Reward |
-|---|---|
-| On-time delivery | +2.0 |
-| Late delivery | +0.8 - 0.03 × late_minutes |
-| Order assigned (SLA slack bonus) | +0.02 × min(15, slack) |
-| Order rejected | -0.25 |
-| Order auto-cancelled (overdue) | -1.2 |
-| Invalid action | -0.5 |
-| Idle courier | -0.003 per courier |
-| Reposition movement | -0.02 × travel_time |
-| Wait with pending orders | -0.01 × pending_count |
-
----
-
-## Grader
-
-`/grader` returns score in `[0.0, 1.0]` based on:
-
-```
-score = 0.35 × on_time_rate
-      + 0.20 × delivery_speed_term
-      + 0.20 × courier_utilization
-      + 0.10 × fairness_score
-      + 0.15 × (1 - cancellation_penalty)
-```
-
-Where:
-- **on_time_rate** = on_time / total_delivered
-- **delivery_speed_term** = max(0, 1 - avg_delivery_minutes / 60)
-- **courier_utilization** = delivered / (total_created - rejected)
-- **fairness_score** = 1 - (max_load - min_load) / max_load across couriers
-- **cancellation_penalty** = cancellation_rate + 0.5 × rejection_rate
-
----
-
-## Baseline Results
-
-| Task | Policy | Score | On-Time | Cancel | Avg Delivery |
-|---|---|---|---|---|---|
-| easy | nearest | 0.858 | 98.9% | 0.0% | 18.2 min |
-| easy | hybrid | 0.863 | 100.0% | 0.0% | 18.0 min |
-| easy | **ddqn_per_v1** | **0.905** | 98.8% | 0.0% | 18.5 min |
-| medium | hybrid | 0.807 | 92.9% | 1.1% | 23.1 min |
-| medium | **ddqn_per_v1** | **0.864** | 93.3% | 0.0% | 22.2 min |
-| hard | **hybrid** | **0.698** | 71.1% | 7.2% | 25.8 min |
-| hard | ddqn_per_v1 | 0.639 | 57.1% | 2.4% | 30.1 min |
-
-DDQN+PER outperforms heuristics on easy/medium. Hybrid heuristic is strongest on hard.
-
----
+The objective is to maximize service quality (on-time delivery, low cancellations) while maintaining efficiency (good utilization, minimal wasted movement).
 
 ## Quick Start
 
 ```bash
-cd food_delivery_env_v2
 uv sync
 uv run python -m server.app
 ```
@@ -144,147 +36,196 @@ In another terminal:
 uv run python scripts/run_baseline.py --url http://localhost:8000 --episodes 3
 ```
 
-### Development Dependencies
+Run tests:
 
 ```bash
-uv sync --dev           # Installs pytest and other dev tooling
-```
-
-### Run Tests
-
-```bash
+uv sync --dev
 uv run pytest tests/ -v
 ```
 
----
+## Task Descriptions and Difficulty
 
-## Using the Client
+| Task | Description | Couriers | Horizon | SLA | Difficulty |
+|---|---|---:|---:|---:|---|
+| `easy` | Stable demand, relaxed constraints | 12 | 180 min | 38 min | Intro / low volatility |
+| `medium` | Burstier demand, tighter SLA | 14 | 240 min | 34 min | Moderate operational pressure |
+| `hard` | Adversarial peaks, strict SLA | 14 | 300 min | 30 min | High volatility and constraint pressure |
 
-```python
-from food_delivery_env_v2 import FoodDeliveryEnv, FoodDeliveryAction
+All tasks use fixed seeds for deterministic evaluation.
 
-with FoodDeliveryEnv(base_url="http://localhost:8000") as env:
-    obs = env.reset(task="easy")
-    print(f"Pending orders: {len(obs.pending_orders)}")
+## Action Space Definition
 
-    action = FoodDeliveryAction(
-        action_type="assign",
-        order_id=obs.pending_orders[0].order_id,
-        courier_id=obs.couriers[0].courier_id,
-    )
-    result = env.step(action)
-    print(f"Reward: {result.reward}")
-```
+Action type: `FoodDeliveryAction`
 
----
+| Field | Type | Description |
+|---|---|---|
+| `action_type` | enum (`assign`, `reject`, `reposition`, `wait`) | Dispatch operation |
+| `order_id` | string or null | Order target for assign/reject |
+| `courier_id` | string or null | Courier target for assign/reposition |
+| `target_zone` | integer or null | Zone id for reposition |
 
-## LLM Inference
+## Observation Space Definition
+
+Observation type: `FoodDeliveryObservation`
+
+Includes complete dispatch state and KPI counters:
+- time (`minute`, `horizon`)
+- `pending_orders` (urgency, ETA, SLA remaining)
+- `couriers` (zone, queue, busy/reposition state)
+- totals: created, delivered, on-time, late, rejected, cancelled
+- `average_delivery_minutes`
+- step `reward`, `cumulative_reward`, and `done`
+
+See `models.py` for the exact typed schema.
+
+## Reward Design
+
+Dense reward is applied every step:
+- On-time delivery: `+2.0`
+- Late delivery: `+0.8 - 0.03 * late_minutes`
+- Assignment shaping bonus: `+0.02 * min(15, slack)`
+- Reject: `-0.25`
+- Auto-cancel overdue: `-1.2`
+- Invalid action: `-0.5`
+- Idle courier penalty: `-0.003` per idle courier
+- Reposition cost: `-0.02 * travel_time`
+- Wait with pending orders: `-0.01 * pending_count`
+
+## Grader
+
+`/grader` returns deterministic score in `[0, 1]` from weighted service and efficiency metrics.
+
+## OpenEnv and Hackathon Endpoints
+
+Standard OpenEnv routes:
+- `POST /reset`
+- `POST /step`
+- `GET /state`
+
+Hackathon-relevant routes:
+- `GET /tasks`
+- `POST /grader`
+- `GET /baseline`
+- `POST /baseline`
+- `POST /evaluate`
+- `GET /health`
+
+## Baseline Scores (Policy Benchmarks)
+
+| Task | Policy | Score | On-Time | Cancel | Avg Delivery |
+|---|---|---:|---:|---:|---:|
+| easy | nearest | 0.858 | 98.9% | 0.0% | 18.2 min |
+| easy | hybrid | 0.863 | 100.0% | 0.0% | 18.0 min |
+| easy | ddqn_per_v1 | 0.905 | 98.8% | 0.0% | 18.5 min |
+| medium | hybrid | 0.807 | 92.9% | 1.1% | 23.1 min |
+| medium | ddqn_per_v1 | 0.864 | 93.3% | 0.0% | 22.2 min |
+| hard | hybrid | 0.698 | 71.1% | 7.2% | 25.8 min |
+| hard | ddqn_per_v1 | 0.639 | 57.1% | 2.4% | 30.1 min |
+
+## Inference Script (Submission Path)
+
+Root `inference.py` is the script used by evaluators.
+- Uses OpenAI-compatible client
+- Emits strict logs: `[START]`, repeated `[STEP]`, `[END]`
+- Supports single-task execution via `TASK_NAME`
+- Uses env horizon by default (`MAX_STEPS=0` means auto-horizon)
+
+Required environment variables:
+- `API_BASE_URL`
+- `MODEL_NAME`
+- `HF_TOKEN`
+
+Optional variables:
+- `BENCHMARK_URL` (default `http://localhost:8000`)
+- `TASK_NAME` (`easy` | `medium` | `hard`, default `medium`)
+- `MAX_STEPS` (`0` for auto-horizon, or positive integer override)
+
+### Reproduce Inference Runs
 
 ```bash
 export API_BASE_URL="https://api.groq.com/openai/v1"
-export MODEL_NAME="llama-3.1-8b-instant"
+export MODEL_NAME="llama-3.3-70b-versatile"
 export HF_TOKEN="<your_key>"
 export BENCHMARK_URL="http://localhost:8000"
+export MAX_STEPS="0"
+
+export TASK_NAME="easy"
+uv run --no-sync python inference.py
+
 export TASK_NAME="medium"
+uv run --no-sync python inference.py
 
-uv run python inference.py
+export TASK_NAME="hard"
+uv run --no-sync python inference.py
 ```
 
----
+## How A Judge / LLM Evaluator Will Run This
 
-## API Endpoints
+Typical evaluation flow in the hackathon:
+1. Start the environment (local Docker or deployed HF Space).
+2. Verify service endpoints (`/health`, `/reset`, `/step`, `/tasks`, `/grader`).
+3. Set `API_BASE_URL`, `MODEL_NAME`, `HF_TOKEN`, `BENCHMARK_URL`, and `TASK_NAME`.
+4. Run `uv run --no-sync python inference.py` per task.
+5. Parse `[END]` for final `success`, `steps`, and `score`.
+6. Confirm full-horizon completion (`done=true` at task horizon).
 
-| Endpoint | Method | Description |
-|---|---|---|
-| `/reset` | POST | Reset environment (optional: `{"task": "easy"}`) |
-| `/step` | POST | Execute action |
-| `/state` | GET | Get current episode state |
-| `/tasks` | GET | List tasks and action schema |
-| `/grader` | POST | Run grader evaluation |
-| `/baseline` | POST | Run baseline across all tasks |
-| `/evaluate` | POST | Evaluate any policy |
-| `/policies` | GET | List available policies |
-| `/health` | GET | Health check |
-
----
-
-## Training Pipelines
-
-### DDQN + Prioritized Experience Replay
-
-```bash
-uv run python -m training.train_ddqn_per --episodes 300 --policy-id ddqn_per_v1
-```
-
-Meta-action DDQN with prioritized replay over dispatch heuristics. Uses action masking to ensure only valid actions are selected.
-
-### Masked PPO
-
-```bash
-uv run python -m training.train_ppo_masked --updates 120 --policy-id ppo_masked_v1
-```
-
-Proximal Policy Optimization with action masking over high-level dispatch templates.
-
----
-
-## Deployment
-
-### Docker
+## Docker
 
 ```bash
 docker build -t food-delivery-dispatch:latest .
 docker run --rm -p 8000:8000 food-delivery-dispatch:latest
 curl http://localhost:8000/health
+curl http://localhost:8000/baseline
 ```
 
-### Hugging Face Spaces
+`server/Dockerfile` is a legacy alternate. Root `Dockerfile` is canonical.
+
+## Hugging Face Spaces
 
 ```bash
 openenv push
 ```
 
-The deployed space includes:
-- **Web Interface** at `/web`
-- **API Docs** at `/docs`
-- **Health Check** at `/health`
-- **WebSocket** at `/ws`
-
----
+After deploy, verify:
+- `POST /reset` returns `200`
+- `/tasks`, `/grader`, `/baseline` return valid responses
+- Space variables include `API_BASE_URL`, `MODEL_NAME`, `HF_TOKEN`
 
 ## Project Structure
 
-```
+```text
 food_delivery_env_v2/
-├── __init__.py                 # Package exports
-├── client.py                   # FoodDeliveryEnv client
-├── models.py                   # Action/Observation models
-├── decision.py                 # Heuristic policies
-├── inference.py                # LLM inference script
+├── README.md
+├── openenv.yaml
+├── pyproject.toml
+├── Dockerfile
+├── inference.py
+├── client.py
+├── models.py
+├── decision.py
 ├── scripts/
-│   └── run_baseline.py         # Baseline evaluation
-├── validate-submission.sh      # Pre-submission validator
-├── openenv.yaml                # OpenEnv manifest
-├── pyproject.toml              # Package config
-├── Dockerfile                  # Container definition
+│   └── run_baseline.py
 ├── server/
-│   ├── __init__.py
-│   ├── app.py                  # FastAPI application
-│   ├── food_delivery_environment.py  # Core simulation
-│   ├── grader.py               # Multi-metric grader
+│   ├── app.py
+│   ├── food_delivery_environment.py
+│   ├── grader.py
+│   ├── web_ui.py
 │   └── Dockerfile
 ├── training/
-│   ├── __init__.py
-│   ├── common.py               # Shared utilities
-│   ├── inference.py            # Trained policy inference
-│   ├── train_ddqn_per.py       # DDQN+PER training
-│   ├── train_ppo_masked.py     # Masked PPO training
+│   ├── common.py
+│   ├── inference.py
+│   ├── train_ddqn_per.py
+│   ├── train_ppo_masked.py
 │   └── models/
-│       ├── ddqn_per_v1.pt      # Trained DDQN checkpoint
-│       ├── ppo_masked_v1.pt    # Trained PPO checkpoint
-│       └── registry.json       # Policy registry
-└── tests/
-    ├── conftest.py
-    ├── test_api_endpoints.py
-    └── test_grader_and_env.py
+│       ├── registry.json
+│       ├── ddqn_per_v1.pt
+│       └── ppo_masked_v1.pt
+├── tests/
+│   ├── conftest.py
+│   ├── test_api_endpoints.py
+│   └── test_grader_and_env.py
+└── docs/
+    ├── benchmarks/
+    ├── submission/
+    └── hackathon-docs/
 ```

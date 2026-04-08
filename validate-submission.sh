@@ -87,6 +87,12 @@ HTTP_CODE=$(curl -s -o "$CURL_OUTPUT" -w "%{http_code}" -X POST \
   -H "Content-Type: application/json" -d '{}' \
   "$PING_URL/reset" --max-time 30 2>"$CURL_OUTPUT" || printf "000")
 
+# Some shells/platforms may concatenate status fragments (e.g., 000000).
+# Keep only the trailing 3-digit HTTP code for comparisons.
+if [ ${#HTTP_CODE} -gt 3 ]; then
+  HTTP_CODE="${HTTP_CODE: -3}"
+fi
+
 if [ "$HTTP_CODE" = "200" ]; then
   pass "HF Space is live and responds to /reset"
 elif [ "$HTTP_CODE" = "000" ]; then

@@ -6,7 +6,10 @@ from openenv.core import EnvClient
 from openenv.core.client_types import StepResult
 from openenv.core.env_server.types import State
 
-from .models import FoodDeliveryAction, FoodDeliveryObservation
+try:
+    from .models import FoodDeliveryAction, FoodDeliveryObservation
+except ImportError:  # pragma: no cover
+    from models import FoodDeliveryAction, FoodDeliveryObservation
 
 
 class FoodDeliveryEnv(EnvClient[FoodDeliveryAction, FoodDeliveryObservation, State]):
