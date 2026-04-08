@@ -1,5 +1,5 @@
 ---
-title: Food Delivery Environment Server
+title: OpenEnv Food Delivery Environment Server
 emoji: "🚚"
 colorFrom: blue
 colorTo: green
@@ -45,11 +45,11 @@ uv run pytest tests/ -v
 
 ## Task Descriptions and Difficulty
 
-| Task | Description | Couriers | Horizon | SLA | Difficulty |
-|---|---|---:|---:|---:|---|
-| `easy` | Stable demand, relaxed constraints | 12 | 180 min | 38 min | Intro / low volatility |
-| `medium` | Burstier demand, tighter SLA | 14 | 240 min | 34 min | Moderate operational pressure |
-| `hard` | Adversarial peaks, strict SLA | 14 | 300 min | 30 min | High volatility and constraint pressure |
+| Task     | Description                        | Couriers | Horizon |    SLA | Difficulty                              |
+| -------- | ---------------------------------- | -------: | ------: | -----: | --------------------------------------- |
+| `easy`   | Stable demand, relaxed constraints |       12 | 180 min | 38 min | Intro / low volatility                  |
+| `medium` | Burstier demand, tighter SLA       |       14 | 240 min | 34 min | Moderate operational pressure           |
+| `hard`   | Adversarial peaks, strict SLA      |       14 | 300 min | 30 min | High volatility and constraint pressure |
 
 All tasks use fixed seeds for deterministic evaluation.
 
@@ -57,12 +57,12 @@ All tasks use fixed seeds for deterministic evaluation.
 
 Action type: `FoodDeliveryAction`
 
-| Field | Type | Description |
-|---|---|---|
-| `action_type` | enum (`assign`, `reject`, `reposition`, `wait`) | Dispatch operation |
-| `order_id` | string or null | Order target for assign/reject |
-| `courier_id` | string or null | Courier target for assign/reposition |
-| `target_zone` | integer or null | Zone id for reposition |
+| Field         | Type                                            | Description                          |
+| ------------- | ----------------------------------------------- | ------------------------------------ |
+| `action_type` | enum (`assign`, `reject`, `reposition`, `wait`) | Dispatch operation                   |
+| `order_id`    | string or null                                  | Order target for assign/reject       |
+| `courier_id`  | string or null                                  | Courier target for assign/reposition |
+| `target_zone` | integer or null                                 | Zone id for reposition               |
 
 ## Observation Space Definition
 
@@ -112,25 +112,25 @@ Hackathon-relevant routes:
 
 ## Baseline Scores (Policy Benchmarks)
 
-| Task | Policy | Score | On-Time | Cancel | Avg Delivery |
-|---|---|---:|---:|---:|---:|
-| easy | nearest | 0.858 | 98.9% | 0.0% | 18.2 min |
-| easy | hybrid | 0.863 | 100.0% | 0.0% | 18.0 min |
-| easy | ddqn_per_v1 | 0.905 | 98.8% | 0.0% | 18.5 min |
-| medium | hybrid | 0.807 | 92.9% | 1.1% | 23.1 min |
-| medium | ddqn_per_v1 | 0.864 | 93.3% | 0.0% | 22.2 min |
-| hard | hybrid | 0.698 | 71.1% | 7.2% | 25.8 min |
-| hard | ddqn_per_v1 | 0.639 | 57.1% | 2.4% | 30.1 min |
+| Task   | Policy      | Score | On-Time | Cancel | Avg Delivery |
+| ------ | ----------- | ----: | ------: | -----: | -----------: |
+| easy   | nearest     | 0.858 |   98.9% |   0.0% |     18.2 min |
+| easy   | hybrid      | 0.863 |  100.0% |   0.0% |     18.0 min |
+| easy   | ddqn_per_v1 | 0.905 |   98.8% |   0.0% |     18.5 min |
+| medium | hybrid      | 0.807 |   92.9% |   1.1% |     23.1 min |
+| medium | ddqn_per_v1 | 0.864 |   93.3% |   0.0% |     22.2 min |
+| hard   | hybrid      | 0.698 |   71.1% |   7.2% |     25.8 min |
+| hard   | ddqn_per_v1 | 0.639 |   57.1% |   2.4% |     30.1 min |
 
 ## LLM Inference Results (Our Runs)
 
 Using `inference.py` with model `llama-3.3-70b-versatile`:
 
-| Task | Horizon | Steps | Done | Score |
-|---|---:|---:|---|---:|
-| easy | 180 | 180 | true | 0.924 |
-| medium | 240 | 240 | true | 0.781 |
-| hard | 300 | 300 | true | 0.712 |
+| Task   | Horizon | Steps | Done | Score |
+| ------ | ------: | ----: | ---- | ----: |
+| easy   |     180 |   180 | true | 0.924 |
+| medium |     240 |   240 | true | 0.781 |
+| hard   |     300 |   300 | true | 0.712 |
 
 These runs are deterministic for the same task/model/environment settings due to fixed scenario seeds.
 
@@ -200,6 +200,10 @@ Typical evaluation flow in the hackathon:
 4. Run `uv run --no-sync python inference.py` per task.
 5. Parse `[END]` for final `success`, `steps`, and `score`.
 6. Confirm full-horizon completion (`done=true` at task horizon).
+
+Hugging Face Space links for this project:
+- Space page: `https://huggingface.co/spaces/TejasS1233/openenv-food-delivery-dispatch`
+- Runtime API base URL (use for `BENCHMARK_URL`): `https://tejass1233-openenv-food-delivery-dispatch.hf.space`
 
 Example judge run (against deployed HF Space):
 
