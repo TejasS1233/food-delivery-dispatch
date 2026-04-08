@@ -7,7 +7,7 @@ Required environment variables for LLM:
 - HF_TOKEN: API key (or GROQ_API_KEY / API_KEY fallback)
 
 Optional:
-- LOCAL_IMAGE_NAME: reserved for docker-based env startup flows
+- LOCAL_IMAGE_NAME: local Docker image name used by from_docker_image() (example: food-delivery-dispatch:latest)
 
 This script emits exactly these stdout line types:
 - [START] ...
@@ -33,7 +33,10 @@ API_KEY = os.getenv("HF_TOKEN")
 API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
 
-BENCHMARK_URL = os.getenv("BENCHMARK_URL", "https://tejass1233-food-delivery.hf.space/")
+BENCHMARK_URL = os.getenv(
+    "BENCHMARK_URL",
+    "https://tejass1233-openenv-food-delivery-dispatch.hf.space",
+)
 TASK_NAME = os.getenv("TASK_NAME", "medium")
 BENCHMARK = os.getenv("BENCHMARK", "food_delivery_dispatch")
 MAX_STEPS = int(os.getenv("MAX_STEPS", "0"))

@@ -151,6 +151,7 @@ Optional variables:
 - `BENCHMARK_URL` (default `http://localhost:8000`)
 - `TASK_NAME` (`easy` | `medium` | `hard`, default `medium`)
 - `MAX_STEPS` (`0` for auto-horizon, or positive integer override)
+- `LOCAL_IMAGE_NAME` (optional; when set, `inference.py` uses `from_docker_image()`, e.g. `food-delivery-dispatch:latest`)
 
 ### Reproduce Inference Runs
 
@@ -205,7 +206,7 @@ Example judge run (against deployed HF Space):
 macOS/Linux (bash):
 
 ```bash
-export BENCHMARK_URL="https://tejass1233-food-delivery.hf.space"
+export BENCHMARK_URL="https://tejass1233-openenv-food-delivery-dispatch.hf.space"
 export API_BASE_URL="<openai_compatible_base_url>"
 export MODEL_NAME="<evaluator_model_name>"
 export HF_TOKEN="<judge_key>"
@@ -219,7 +220,7 @@ export TASK_NAME="hard" && uv run --no-sync python inference.py
 Windows (PowerShell):
 
 ```powershell
-$env:BENCHMARK_URL="https://tejass1233-food-delivery.hf.space"
+$env:BENCHMARK_URL="https://tejass1233-openenv-food-delivery-dispatch.hf.space"
 $env:API_BASE_URL="<openai_compatible_base_url>"
 $env:MODEL_NAME="<evaluator_model_name>"
 $env:HF_TOKEN="<judge_key>"
@@ -233,13 +234,13 @@ $env:TASK_NAME="hard";   uv run --no-sync python inference.py
 Validator command used before final submission:
 
 ```bash
-bash ./validate-submission.sh https://tejass1233-food-delivery.hf.space .
+bash ./validate-submission.sh https://tejass1233-openenv-food-delivery-dispatch.hf.space .
 ```
 
 Windows PowerShell (runs the same script through Git Bash):
 
 ```powershell
-bash ./validate-submission.sh https://tejass1233-food-delivery.hf.space .
+bash ./validate-submission.sh https://tejass1233-openenv-food-delivery-dispatch.hf.space .
 ```
 
 ## Docker

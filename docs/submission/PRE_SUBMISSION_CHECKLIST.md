@@ -27,6 +27,7 @@ This file tracks the organizer's hard requirements and current project status.
 - [x] `inference.py` exists at project root
 - [x] Uses OpenAI client for all LLM calls
 - [x] Supports required env vars: `API_BASE_URL`, `MODEL_NAME`, `HF_TOKEN`
+- [x] Supports optional local image var: `LOCAL_IMAGE_NAME` (for `from_docker_image()` flow)
 - [x] Structured stdout format `[START]`, `[STEP]`, `[END]`
 - [x] Local dry-run completed without error and emitted score in `[0,1]`
 - [x] Fallback path works without LLM key (uses deterministic dispatch fallback)
@@ -40,7 +41,7 @@ This file tracks the organizer's hard requirements and current project status.
 - [x] Inference script name is exactly `inference.py`
 - [x] OpenAI client usage for LLM calls
 - [x] STDOUT fields follow required ordering and formatting
-- [ ] Confirm deployment config includes all three vars (`API_BASE_URL`, `MODEL_NAME`, `HF_TOKEN`) in Space settings
+- [ ] Confirm deployment config includes required vars (`API_BASE_URL`, `MODEL_NAME`, `HF_TOKEN`) in Space settings
 
 ## 7) Infra restrictions
 - [x] Inference runtime path is lightweight (`MAX_STEPS` bounded, simple loop)
@@ -56,4 +57,4 @@ This file tracks the organizer's hard requirements and current project status.
 1. Deploy HF Space and verify `/reset` returns `200`.
 2. Run `validate-submission.sh` against live Space URL and capture pass output.
 3. Start Docker daemon and verify local `docker build .` passes.
-4. Ensure Space secrets/variables include `API_BASE_URL`, `MODEL_NAME`, `HF_TOKEN`.
+4. Ensure Space secrets/variables include `API_BASE_URL`, `MODEL_NAME`, `HF_TOKEN` (and `LOCAL_IMAGE_NAME` only if using local Docker image mode).
