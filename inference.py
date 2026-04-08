@@ -30,10 +30,10 @@ from models import FoodDeliveryAction
 
 LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME", "")
 API_KEY = os.getenv("HF_TOKEN")
-API_BASE_URL = os.getenv("API_BASE_URL", "https://api.groq.com/openai/v1")
-MODEL_NAME = os.getenv("MODEL_NAME", "llama-3.1-8b-instant")
+API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
+MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
 
-BENCHMARK_URL = os.getenv("BENCHMARK_URL", "http://localhost:8000")
+BENCHMARK_URL = os.getenv("BENCHMARK_URL", "https://tejass1233-food-delivery.hf.space/")
 TASK_NAME = os.getenv("TASK_NAME", "medium")
 BENCHMARK = os.getenv("BENCHMARK", "food_delivery_dispatch")
 MAX_STEPS = int(os.getenv("MAX_STEPS", "0"))

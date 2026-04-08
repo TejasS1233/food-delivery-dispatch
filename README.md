@@ -122,6 +122,18 @@ Hackathon-relevant routes:
 | hard | hybrid | 0.698 | 71.1% | 7.2% | 25.8 min |
 | hard | ddqn_per_v1 | 0.639 | 57.1% | 2.4% | 30.1 min |
 
+## LLM Inference Results (Our Runs)
+
+Using `inference.py` with model `llama-3.3-70b-versatile`:
+
+| Task | Horizon | Steps | Done | Score |
+|---|---:|---:|---|---:|
+| easy | 180 | 180 | true | 0.924 |
+| medium | 240 | 240 | true | 0.781 |
+| hard | 300 | 300 | true | 0.712 |
+
+These runs are deterministic for the same task/model/environment settings due to fixed scenario seeds.
+
 ## Inference Script (Submission Path)
 
 Root `inference.py` is the script used by evaluators.
@@ -142,11 +154,16 @@ Optional variables:
 
 ### Reproduce Inference Runs
 
+Reference configuration used by the project team for reported runs: OpenAI-compatible endpoint with model `llama-3.3-70b-versatile`.
+Evaluators may use a different endpoint/model; only the required variable names must match.
+
+macOS/Linux (bash):
+
 ```bash
-export API_BASE_URL="https://api.groq.com/openai/v1"
-export MODEL_NAME="llama-3.3-70b-versatile"
+export API_BASE_URL="<openai_compatible_base_url>"
+export MODEL_NAME="<evaluator_model_name>"
 export HF_TOKEN="<your_key>"
-export BENCHMARK_URL="http://localhost:8000"
+export BENCHMARK_URL="<env_base_url>"
 export MAX_STEPS="0"
 
 export TASK_NAME="easy"
@@ -159,6 +176,20 @@ export TASK_NAME="hard"
 uv run --no-sync python inference.py
 ```
 
+Windows (PowerShell):
+
+```powershell
+$env:API_BASE_URL="<openai_compatible_base_url>"
+$env:MODEL_NAME="<evaluator_model_name>"
+$env:HF_TOKEN="<your_key>"
+$env:BENCHMARK_URL="<env_base_url>"
+$env:MAX_STEPS="0"
+
+$env:TASK_NAME="easy";   uv run --no-sync python inference.py
+$env:TASK_NAME="medium"; uv run --no-sync python inference.py
+$env:TASK_NAME="hard";   uv run --no-sync python inference.py
+```
+
 ## How A Judge / LLM Evaluator Will Run This
 
 Typical evaluation flow in the hackathon:
@@ -168,6 +199,48 @@ Typical evaluation flow in the hackathon:
 4. Run `uv run --no-sync python inference.py` per task.
 5. Parse `[END]` for final `success`, `steps`, and `score`.
 6. Confirm full-horizon completion (`done=true` at task horizon).
+
+Example judge run (against deployed HF Space):
+
+macOS/Linux (bash):
+
+```bash
+export BENCHMARK_URL="https://tejass1233-food-delivery.hf.space"
+export API_BASE_URL="<openai_compatible_base_url>"
+export MODEL_NAME="<evaluator_model_name>"
+export HF_TOKEN="<judge_key>"
+export MAX_STEPS="0"
+
+export TASK_NAME="easy" && uv run --no-sync python inference.py
+export TASK_NAME="medium" && uv run --no-sync python inference.py
+export TASK_NAME="hard" && uv run --no-sync python inference.py
+```
+
+Windows (PowerShell):
+
+```powershell
+$env:BENCHMARK_URL="https://tejass1233-food-delivery.hf.space"
+$env:API_BASE_URL="<openai_compatible_base_url>"
+$env:MODEL_NAME="<evaluator_model_name>"
+$env:HF_TOKEN="<judge_key>"
+$env:MAX_STEPS="0"
+
+$env:TASK_NAME="easy";   uv run --no-sync python inference.py
+$env:TASK_NAME="medium"; uv run --no-sync python inference.py
+$env:TASK_NAME="hard";   uv run --no-sync python inference.py
+```
+
+Validator command used before final submission:
+
+```bash
+bash ./validate-submission.sh https://tejass1233-food-delivery.hf.space .
+```
+
+Windows PowerShell (runs the same script through Git Bash):
+
+```powershell
+bash ./validate-submission.sh https://tejass1233-food-delivery.hf.space .
+```
 
 ## Docker
 
